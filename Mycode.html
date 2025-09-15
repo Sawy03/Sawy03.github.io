@@ -416,11 +416,11 @@
           playerCard.onclick = () => togglePlayer(index);
 
           playerCard.innerHTML = `
-                          <div class="player-info">
-                              <div class="player-name">${player.name}</div>
-                              <div class="player-price">$${player.price}M</div>
-                          </div>
-                      `;
+                                <div class="player-info">
+                                    <div class="player-name">${player.name}</div>
+                                    <div class="player-price">$${player.price}M</div>
+                                </div>
+                            `;
 
           grid.appendChild(playerCard);
         });
@@ -536,28 +536,34 @@
         document.getElementById("teamSelection").classList.add("hidden");
         // Send to Google Sheets via Apps Script
         fetch(
-          "https://script.google.com/macros/s/AKfycbx8fEBXgMH0whhcwBrZsGS_Ifq2pZcZT9MTh0zzn2QdBDbFgKc5IIQyxXbMjVTRnYGkuQ/exec",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: currentUser.name,
-              email: currentUser.email,
-              players: selectedPlayerObjects.map((p) => p.name),
-              totalCost: 50 - remainingBudget,
-              submittedAt: new Date().toLocaleString(),
-            }),
-          }
+          "https://script.google.com/macros/s/AKfycbx1PNSCHA5RiRBWdMnVDZOfQjDI7VHeHUl4zN3rjre066lLIga4cpcEpPFAbsFzNM1ggQ/exec" +
+            "?name=" +
+            encodeURIComponent(currentUser.name) +
+            "&email=" +
+            encodeURIComponent(currentUser.email) +
+            "&captain=" +
+            encodeURIComponent(selectedPlayerObjects[0].name) +
+            "&subCaptain=" +
+            encodeURIComponent(selectedPlayerObjects[1].name) +
+            "&third=" +
+            encodeURIComponent(selectedPlayerObjects[2].name) +
+            "&fourth=" +
+            encodeURIComponent(selectedPlayerObjects[3].name) +
+            "&fifth=" +
+            encodeURIComponent(selectedPlayerObjects[4].name) +
+            "&sub=" +
+            encodeURIComponent(selectedPlayerObjects[5].name) +
+            "&totalCost=" +
+            (50 - remainingBudget) +
+            "&submittedAt=" +
+            encodeURIComponent(new Date().toLocaleString())
         )
           .then((res) => res.text())
           .then((text) => {
-            console.log("Apps Script response:", text);
-            showAlert("Team submitted! Response: " + text, "success");
+            console.log("Response:", text);
+            showAlert("Team submitted! " + text, "success");
           })
-          .catch((err) => {
-            console.error("Fetch error:", err);
-            showAlert("Error submitting team: " + err);
-          });
+          .catch((err) => showAlert("Error: " + err));
       }
 
       function displayAllTeams() {
@@ -571,45 +577,47 @@
         teamsList.innerHTML = allTeams
           .map(
             (team) => `
-                      <div class="team-card">
-                          <div class="team-header">
-                              <h3>${team.user.name}</h3>
-                              <p>Total Cost: ${team.totalCost}M | Submitted: ${
-              team.submittedAt
-            }</p>
-                          </div>
-                          <div style="margin-bottom: 15px;">
-                              <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;">
-                                  <div><strong>👑 Captain:</strong> ${
-                                    team.captain.name
-                                  } (${team.captain.price}M)</div>
-                                  <div><strong>🥈 Vice Captain:</strong> ${
-                                    team.viceCaptain.name
-                                  } (${team.viceCaptain.price}M)</div>
-                                  <div><strong>🔄 Substitute:</strong> ${
-                                    team.substitute.name
-                                  } (${team.substitute.price}M)</div>
-                              </div>
-                          </div>
-                          <div class="team-players">
-                              ${team.players
-                                .map((player) => {
-                                  let badge = "";
-                                  if (player.name === team.captain.name)
-                                    badge = " 👑";
-                                  else if (
-                                    player.name === team.viceCaptain.name
-                                  )
-                                    badge = " 🥈";
-                                  else if (player.name === team.substitute.name)
-                                    badge = " 🔄";
+                            <div class="team-card">
+                                <div class="team-header">
+                                    <h3>${team.user.name}</h3>
+                                    <p>Total Cost: ${
+                                      team.totalCost
+                                    }M | Submitted: ${team.submittedAt}</p>
+                                </div>
+                                <div style="margin-bottom: 15px;">
+                                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;">
+                                        <div><strong>👑 Captain:</strong> ${
+                                          team.captain.name
+                                        } (${team.captain.price}M)</div>
+                                        <div><strong>🥈 Vice Captain:</strong> ${
+                                          team.viceCaptain.name
+                                        } (${team.viceCaptain.price}M)</div>
+                                        <div><strong>🔄 Substitute:</strong> ${
+                                          team.substitute.name
+                                        } (${team.substitute.price}M)</div>
+                                    </div>
+                                </div>
+                                <div class="team-players">
+                                    ${team.players
+                                      .map((player) => {
+                                        let badge = "";
+                                        if (player.name === team.captain.name)
+                                          badge = " 👑";
+                                        else if (
+                                          player.name === team.viceCaptain.name
+                                        )
+                                          badge = " 🥈";
+                                        else if (
+                                          player.name === team.substitute.name
+                                        )
+                                          badge = " 🔄";
 
-                                  return `<div class="team-player">${player.name} (${player.price}M)${badge}</div>`;
-                                })
-                                .join("")}
-                          </div>
-                      </div>
-                  `
+                                        return `<div class="team-player">${player.name} (${player.price}M)${badge}</div>`;
+                                      })
+                                      .join("")}
+                                </div>
+                            </div>
+                        `
           )
           .join("");
       }
