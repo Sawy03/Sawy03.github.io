@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"
+    ></script>
+    <script type="text/javascript">
+      (function () {
+        emailjs.init("1IehUh05BXIX3sxmC"); // Replace with your Public Key
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fantasy GUC League</title>
@@ -511,28 +520,57 @@
           return;
         }
 
-        // Get the player objects for the selected players
         const selectedPlayerObjects = selectedPlayers.map(
           (index) => players[index]
         );
+        console.log(currentUser.email);
+        console.log(currentUser.name);
+        const templateParams = {
+          user: currentUser.name,
+          email: currentUser.email,
+          player_list: selectedPlayerObjects
+            .map((p) => `${p.name} ($${p.price}M)`)
+            .join(", "),
+          captain: selectedPlayerObjects[0].name,
+          vice_captain: selectedPlayerObjects[1].name,
+          third: selectedPlayerObjects[2].name,
+          fourth: selectedPlayerObjects[3].name,
+          fifth: selectedPlayerObjects[4].name,
+          substitute: selectedPlayerObjects[5].name,
+          total_cost: 50 - remainingBudget,
+        };
+
+        emailjs
+          .send("service_wyvxjf6", "template_i9h4env", templateParams)
+          .then(
+            (response) => {
+              console.log("SUCCESS!", response.status, response.text);
+              showAlert(
+                "Team submitted and confirmation email sent!",
+                "success"
+              );
+            },
+            (error) => {
+              console.log("FAILED...", error);
+              showAlert(
+                "Team submitted, but the email failed to send.",
+                "error"
+              );
+            }
+          );
 
         const team = {
           user: currentUser,
           players: selectedPlayerObjects,
           totalCost: 50 - remainingBudget,
-          captain: selectedPlayerObjects[0], // Assign the first player as captain
-          viceCaptain: selectedPlayerObjects[1], // Assign the second player as vice-captain
-          substitute: selectedPlayerObjects[5], // Assign the last player as substitute
+          captain: selectedPlayerObjects[0],
+          viceCaptain: selectedPlayerObjects[1],
+          substitute: selectedPlayerObjects[5],
           submittedAt: new Date().toLocaleString(),
         };
 
         allTeams.push(team);
         displayAllTeams();
-
-        showAlert(
-          `Team submitted successfully! Total cost: $${team.totalCost}M`,
-          "success"
-        );
 
         // Hide team selection and show confirmation
         document.getElementById("teamSelection").classList.add("hidden");
