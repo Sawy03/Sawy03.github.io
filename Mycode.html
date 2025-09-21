@@ -479,9 +479,14 @@
           selectedList.innerHTML = "<p>No players selected yet</p>";
         } else {
           selectedList.innerHTML = selectedPlayers
-            .map(
-              (index) =>
-                `<div class="selected-player">${players[index].name} - $${players[index].price}M</div>`
+            .map((index) =>
+              index === selectedPlayers[0]
+                ? `<div class="selected-player">Captain : ${players[index].name} - $${players[index].price}M</div>`
+                : index === selectedPlayers[1]
+                ? `<div class="selected-player">Vice Captain : ${players[index].name} - $${players[index].price}M</div>`
+                : index === selectedPlayers[5]
+                ? `<div class="selected-player">SUB : ${players[index].name} - $${players[index].price}M</div>`
+                : `<div class="selected-player">${players[index].name} - $${players[index].price}M</div>`
             )
             .join("");
         }
