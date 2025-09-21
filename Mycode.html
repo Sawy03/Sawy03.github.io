@@ -528,8 +528,6 @@
         const selectedPlayerObjects = selectedPlayers.map(
           (index) => players[index]
         );
-        console.log(currentUser.email);
-        console.log(currentUser.name);
         const templateParams = {
           user: currentUser.name,
           email: currentUser.email,
@@ -549,14 +547,12 @@
           .send("service_wyvxjf6", "template_i9h4env", templateParams)
           .then(
             (response) => {
-              console.log("SUCCESS!", response.status, response.text);
               showAlert(
                 "Team submitted and confirmation email sent!",
                 "success"
               );
             },
             (error) => {
-              console.log("FAILED...", error);
               showAlert(
                 "Team submitted, but the email failed to send.",
                 "error"
@@ -605,7 +601,6 @@
         )
           .then((res) => res.text())
           .then((text) => {
-            console.log("Response:", text);
             showAlert("Team submitted! " + text, "success");
           })
           .catch((err) => showAlert("Error: " + err));
@@ -668,7 +663,6 @@
       }
 
       // Initialize the display and load saved data
-      loadGameData();
       displayAllTeams();
     </script>
   </body>
