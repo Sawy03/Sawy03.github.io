@@ -314,7 +314,7 @@
           <div class="budget-info">
             <h3>Team Budget</h3>
             <div class="budget-display">
-              <span>Remaining: $<span id="remainingBudget">50</span>M</span>
+              <span>Remaining: $<span id="remainingBudget">45</span>M</span>
               <span>Players: <span id="selectedCount">0</span>/6</span>
             </div>
           </div>
@@ -360,25 +360,28 @@
     <script>
       // Sample player data - replace with your friends' names and prices
       const players = [
-        { name: "Mohamed omar (Mo)", price: 13 },
-        { name: "Sawy", price: 13 },
-        { name: "Karim", price: 9 },
-        { name: "Seif khaled (saifoo)", price: 10 },
-        { name: "Jmy", price: 9 },
-        { name: "Rasheed", price: 10 },
-        { name: "Abu shanab", price: 11 },
-        { name: "H", price: 9 },
-        { name: "Seif khaled (ndara)", price: 10 },
-        { name: "Gado", price: 9 },
-        { name: "Youssef yasser (joe)", price: 10 },
-        { name: "Shady", price: 6 },
-        { name: "Marwan", price: 3 },
-        { name: "Mostafa", price: 3 },
+        { name: "Mohamed omar (Mo)", price: 10 },
+        { name: "Sawy", price: 10 },
+        { name: "Karim", price: 7 },
+        { name: "Seif khaled (saifoo)", price: 7 },
+        { name: "Jmy", price: 7 },
+        { name: "Rasheed", price: 8 },
+        { name: "Abu shanab", price: 8 },
+        { name: "H", price: 5 },
+        { name: "Seif khaled (ndara)", price: 8 },
+        { name: "Gado", price: 6 },
+        { name: "Youssef yasser (joe)", price: 7 },
+        { name: "Shady", price: 3 },
+        { name: "Marwan", price: 5 },
+        { name: "Ibrahim", price: 4 },
       ];
+
+
+      players.sort((a, b) => b.price - a.price);
 
       let currentUser = null;
       let selectedPlayers = [];
-      let remainingBudget = 50;
+      let remainingBudget = 45;
       let allTeams = [];
 
       function showAlert(message, type = "error") {
@@ -511,7 +514,7 @@
 
       function resetTeam() {
         selectedPlayers = [];
-        remainingBudget = 50;
+        remainingBudget = 45;
         document.querySelectorAll(".player-card").forEach((card) => {
           card.classList.remove("selected", "disabled");
         });
@@ -540,7 +543,7 @@
           fourth: selectedPlayerObjects[3].name,
           fifth: selectedPlayerObjects[4].name,
           substitute: selectedPlayerObjects[5].name,
-          total_cost: 50 - remainingBudget,
+          total_cost: 45 - remainingBudget,
         };
 
         emailjs
@@ -563,7 +566,7 @@
         const team = {
           user: currentUser,
           players: selectedPlayerObjects,
-          totalCost: 50 - remainingBudget,
+          totalCost: 45 - remainingBudget,
           captain: selectedPlayerObjects[0],
           viceCaptain: selectedPlayerObjects[1],
           substitute: selectedPlayerObjects[5],
@@ -595,7 +598,7 @@
             "&sub=" +
             encodeURIComponent(selectedPlayerObjects[5].name) +
             "&totalCost=" +
-            (50 - remainingBudget) +
+            (45 - remainingBudget) +
             "&submittedAt=" +
             encodeURIComponent(new Date().toLocaleString())
         )
