@@ -314,7 +314,7 @@
           <div class="budget-info">
             <h3>Team Budget</h3>
             <div class="budget-display">
-              <span>Remaining: $<span id="remainingBudget">45</span>M</span>
+              <span>Remaining: $<span id="remainingBudget">40</span>M</span>
               <span>Players: <span id="selectedCount">0</span>/6</span>
             </div>
           </div>
@@ -383,7 +383,7 @@
 
       let currentUser = null;
       let selectedPlayers = [];
-      let remainingBudget = 45;
+      let remainingBudget = 40;
       let allTeams = [];
 
       function showAlert(message, type = "error") {
@@ -516,7 +516,7 @@
 
       function resetTeam() {
         selectedPlayers = [];
-        remainingBudget = 45;
+        remainingBudget = 40;
         document.querySelectorAll(".player-card").forEach((card) => {
           card.classList.remove("selected", "disabled");
         });
@@ -545,7 +545,7 @@
           fourth: selectedPlayerObjects[3].name,
           fifth: selectedPlayerObjects[4].name,
           substitute: selectedPlayerObjects[5].name,
-          total_cost: 45 - remainingBudget,
+          total_cost: 40 - remainingBudget,
         };
 
         emailjs
@@ -568,7 +568,7 @@
         const team = {
           user: currentUser,
           players: selectedPlayerObjects,
-          totalCost: 45 - remainingBudget,
+          totalCost: 40 - remainingBudget,
           captain: selectedPlayerObjects[0],
           viceCaptain: selectedPlayerObjects[1],
           substitute: selectedPlayerObjects[5],
@@ -600,7 +600,7 @@
             "&sub=" +
             encodeURIComponent(selectedPlayerObjects[5].name) +
             "&totalCost=" +
-            (45 - remainingBudget) +
+            (40 - remainingBudget) +
             "&submittedAt=" +
             encodeURIComponent(new Date().toLocaleString())
         )
