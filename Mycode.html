@@ -315,7 +315,7 @@
             <h3>Team Budget</h3>
             <div class="budget-display">
               <span>Remaining: $<span id="remainingBudget">40</span>M</span>
-              <span>Players: <span id="selectedCount">0</span>/6</span>
+              <span>Players: <span id="selectedCount">0</span>/8</span>
             </div>
           </div>
 
@@ -453,8 +453,8 @@
           playerCard.classList.remove("selected");
         } else {
           // Add player
-          if (selectedPlayers.length >= 6) {
-            showAlert("You can only select 6 players!");
+          if (selectedPlayers.length >= 8) {
+            showAlert("You can only select 8 players!");
             return;
           }
 
@@ -489,7 +489,7 @@
                 ? `<div class="selected-player">Captain : ${players[index].name} - $${players[index].price}M</div>`
                 : index === selectedPlayers[1]
                 ? `<div class="selected-player">Vice Captain : ${players[index].name} - $${players[index].price}M</div>`
-                : index === selectedPlayers[5]
+                : index === selectedPlayers[7]
                 ? `<div class="selected-player">SUB : ${players[index].name} - $${players[index].price}M</div>`
                 : `<div class="selected-player">${players[index].name} - $${players[index].price}M</div>`
             )
@@ -498,13 +498,13 @@
 
         // Update submit button
         const submitBtn = document.getElementById("submitTeam");
-        submitBtn.disabled = selectedPlayers.length !== 6;
+        submitBtn.disabled = selectedPlayers.length !== 8;
 
         // Update player cards availability
         document.querySelectorAll(".player-card").forEach((card, index) => {
           if (
             !selectedPlayers.includes(index) &&
-            (selectedPlayers.length >= 6 ||
+            (selectedPlayers.length >= 8 ||
               remainingBudget < players[index].price)
           ) {
             card.classList.add("disabled");
@@ -525,8 +525,8 @@
       }
 
       function submitTeam() {
-        if (selectedPlayers.length !== 6) {
-          showAlert("You must select exactly 6 players!");
+        if (selectedPlayers.length !== 8) {
+          showAlert("You must select exactly 8 players!");
           return;
         }
 
@@ -544,8 +544,10 @@
           third: selectedPlayerObjects[2].name,
           fourth: selectedPlayerObjects[3].name,
           fifth: selectedPlayerObjects[4].name,
-          substitute: selectedPlayerObjects[5].name,
-          total_cost: 40 - remainingBudget,
+          sixth: selectedPlayerObjects[5].name,
+          seventh: selectedPlayerObjects[6].name,
+          substitute: selectedPlayerObjects[7].name,
+          total_cost: 60 - remainingBudget,
         };
 
         emailjs
@@ -568,10 +570,10 @@
         const team = {
           user: currentUser,
           players: selectedPlayerObjects,
-          totalCost: 40 - remainingBudget,
+          totalCost: 60 - remainingBudget,
           captain: selectedPlayerObjects[0],
           viceCaptain: selectedPlayerObjects[1],
-          substitute: selectedPlayerObjects[5],
+          substitute: selectedPlayerObjects[7],
           submittedAt: new Date().toLocaleString(),
         };
 
@@ -582,7 +584,7 @@
         document.getElementById("teamSelection").classList.add("hidden");
         // Send to Google Sheets via Apps Script
         fetch(
-          "https://script.google.com/macros/s/AKfycbx1PNSCHA5RiRBWdMnVDZOfQjDI7VHeHUl4zN3rjre066lLIga4cpcEpPFAbsFzNM1ggQ/exec" +
+          "https://script.google.com/macros/s/AKfycbwKTNNZqnTGOEqgjxgnwAKMYEpX2f8LP3hFR2z9-6rnTZrD1VWXu3m43zXTpPWb-qo1FQ/exec" +
             "?name=" +
             encodeURIComponent(currentUser.name) +
             "&email=" +
@@ -597,10 +599,14 @@
             encodeURIComponent(selectedPlayerObjects[3].name) +
             "&fifth=" +
             encodeURIComponent(selectedPlayerObjects[4].name) +
-            "&sub=" +
+            "&sixth=" +
             encodeURIComponent(selectedPlayerObjects[5].name) +
+            "&seventh=" +
+            encodeURIComponent(selectedPlayerObjects[6].name) +
+            "&sub=" +
+            encodeURIComponent(selectedPlayerObjects[7].name) +
             "&totalCost=" +
-            (40 - remainingBudget) +
+            (60 - remainingBudget) +
             "&submittedAt=" +
             encodeURIComponent(new Date().toLocaleString())
         )
