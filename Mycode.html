@@ -314,7 +314,7 @@
           <div class="budget-info">
             <h3>Team Budget</h3>
             <div class="budget-display">
-              <span>Remaining: $<span id="remainingBudget">40</span>M</span>
+              <span>Remaining: $<span id="remainingBudget">60</span>M</span>
               <span>Players: <span id="selectedCount">0</span>/8</span>
             </div>
           </div>
@@ -372,18 +372,21 @@
         { name: "Gado",                 price: 6 },
         { name: "Youssef yasser (joe)", price: 6 },
         { name: "Shady",                price: 3 },
-        { name: "Marwan",               price: 5 },
+        { name: "Marwan ElSissy",       price: 5 },
         { name: "Ibrahim",              price: 6 },
         { name: "N7as",                 price: 3 },
         { name: "Karim Ziad",           price: 3 },
-        { name: "Mostafa",              price: 3 }
+        { name: "Mostafa",              price: 3 },
+        { name: "Omar Helmy",           price: 3 },
+        { name: "Marwan Ahmed",         price: 3 }
+
       ];
 
       players.sort((a, b) => b.price - a.price);
 
       let currentUser = null;
       let selectedPlayers = [];
-      let remainingBudget = 40;
+      let remainingBudget = 60;
       let allTeams = [];
 
       function showAlert(message, type = "error") {
@@ -516,7 +519,7 @@
 
       function resetTeam() {
         selectedPlayers = [];
-        remainingBudget = 40;
+        remainingBudget = 60;
         document.querySelectorAll(".player-card").forEach((card) => {
           card.classList.remove("selected", "disabled");
         });
