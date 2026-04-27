@@ -80,6 +80,36 @@
     margin-bottom: 0.85rem;
   }
 
+  /* Scrollable container for rows */
+  .scrollable-container {
+    overflow-x: auto;
+    overflow-y: visible;
+    margin-bottom: 10px;
+    border-radius: var(--radius);
+    /* Smooth scrolling on webkit browsers */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar styling */
+  .scrollable-container::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .scrollable-container::-webkit-scrollbar-track {
+    background: var(--border);
+    border-radius: 10px;
+  }
+
+  .scrollable-container::-webkit-scrollbar-thumb {
+    background: var(--border2);
+    border-radius: 10px;
+  }
+
+  .scrollable-container::-webkit-scrollbar-thumb:hover {
+    background: var(--green-mid);
+  }
+
   .select-wrap { position: relative; }
 
   .sheet-select {
@@ -112,12 +142,25 @@
     color: var(--text3);
   }
 
+  /* Column headers - also scrollable to match */
+  .col-headers-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    margin-bottom: 6px;
+    /* Hide scrollbar for headers */
+    scrollbar-width: none;
+  }
+  
+  .col-headers-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
   .col-headers {
     display: grid;
-    grid-template-columns: 1fr 110px 130px 34px;
+    grid-template-columns: minmax(200px, 1fr) minmax(110px, 140px) minmax(130px, 160px) 50px;
     gap: 8px;
     padding: 0 10px;
-    margin-bottom: 6px;
+    min-width: min-content;
   }
 
   .col-headers span {
@@ -128,11 +171,16 @@
     color: var(--text3);
   }
 
-  .rows-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .rows-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: min-content;
+  }
 
   .entry-row {
     display: grid;
-    grid-template-columns: 1fr 110px 130px 34px;
+    grid-template-columns: minmax(200px, 1fr) minmax(110px, 140px) minmax(130px, 160px) 50px;
     gap: 8px;
     align-items: center;
     background: var(--surface2);
@@ -141,6 +189,7 @@
     padding: 9px 10px;
     transition: border-color 0.15s, box-shadow 0.15s;
     animation: slideIn 0.17s ease-out;
+    min-width: min-content;
   }
 
   @keyframes slideIn {
@@ -236,6 +285,28 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 15px;
     line-height: 1;
+  }
+
+  /* Scroll hint indicator */
+  .scroll-hint {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text3);
+    opacity: 0.7;
+    transition: opacity 0.3s;
+  }
+  
+  .scroll-hint.hidden {
+    opacity: 0;
+  }
+  
+  .scroll-hint svg {
+    width: 14px;
+    height: 14px;
   }
 
   .total-bar {
@@ -339,11 +410,10 @@
 
 <div class="page-header">
   <h1>Sheet Entry</h1>
-  <p>Choose a sheet, fill in your items, and submit.</p>
+  <p>Choose a sheet, fill in your items, and submit. ← Scroll sideways if needed →</p>
 </div>
 
 <div class="card">
-  <!-- Sheet selector -->
   <div class="card-block">
     <div class="block-label">Select Sheet</div>
     <div class="select-wrap">
@@ -361,23 +431,41 @@
     </div>
   </div>
 
-  <!-- Entry rows -->
   <div class="card-block">
     <div class="block-label">Items</div>
-    <div class="col-headers">
-      <span>Name</span>
-      <span>Quantity</span>
-      <span>Price</span>
-      <span></span>
+    
+    <!-- Scrollable headers -->
+    <div class="col-headers-scroll" id="headersScroll">
+      <div class="col-headers">
+        <span>Name</span>
+        <span>Quantity</span>
+        <span>Price</span>
+        <span></span>
+      </div>
     </div>
-    <div class="rows-wrap" id="rowsWrap"></div>
+    
+    <!-- Scrollable rows container -->
+    <div class="scrollable-container" id="scrollableRows">
+      <div class="rows-wrap" id="rowsWrap"></div>
+    </div>
+    
+    <!-- Scroll hint (optional) -->
+    <div class="scroll-hint" id="scrollHint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 5l-6 6 6 6M5 5l-6 6 6 6" transform="translate(8, 4)"/>
+      </svg>
+      <span>← Scroll sideways →</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 5l-6 6-6-6M5 5l-6 6-6-6" transform="translate(14, 4) scale(-1, 1)"/>
+      </svg>
+    </div>
+    
     <button class="add-btn" onclick="addRow()">
       <span class="add-icon">+</span>
       Add item
     </button>
   </div>
 
-  <!-- Total -->
   <div class="total-bar">
     <div class="total-left">
       <span class="total-label">Total</span>
@@ -386,7 +474,6 @@
     <span class="total-amount" id="totalAmt">$0.00</span>
   </div>
 
-  <!-- Actions -->
   <div class="footer-actions">
     <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
     <button class="btn btn-submit" id="submitBtn" onclick="handleSubmit()">
@@ -402,80 +489,89 @@
 <div class="toasts" id="toasts"></div>
 
 <script>
-  /* ══════════════════════════════════════════
-     CONFIG — REPLACE WITH YOUR APPS SCRIPT URL
-     ══════════════════════════════════════════ */
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUJ_XgrpmdgZfPcQTGmuqVGUyoBzCAvaW-5sMyjx7SfT3Bbmo2cuaU4CeaIoXoGwTwKA/exec'; // ← PASTE YOUR URL
-  
-  /* ══════════════════════════════════════════
-     ROW LOGIC
-     ══════════════════════════════════════════ */
-let rowIdx = 0;
+  const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
-// Add first hardcoded row
-function addFirstRow() {
-  const n = ++rowIdx;
-  const div = document.createElement('div');
-  div.className = 'entry-row';
-  div.id = `row${n}`;
-  div.innerHTML = `
-    <input type="text"   id="n${n}" placeholder="Item name" value="كيماوي">
-    <input type="number" id="q${n}" placeholder="0"   min="0" step="1" oninput="recalc()">
-    <div class="price-wrap">
-      <input type="number" id="p${n}" placeholder="0.00" min="0" step="0.01" oninput="recalc()">
-    </div>
-    <button class="del-btn" onclick="removeRow(${n})" title="Remove row">
-      <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-        <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </button>`;
-  document.getElementById('rowsWrap').appendChild(div);
-}
+  let rowIdx = 0;
 
-// Add second hardcoded row
-function addSecondRow() {
-  const n = ++rowIdx;
-  const div = document.createElement('div');
-  div.className = 'entry-row';
-  div.id = `row${n}`;
-  div.innerHTML = `
-    <input type="text"   id="n${n}" placeholder="Item name" value="حرت" oninput="recalc()">
-    <input type="number" id="q${n}" placeholder="0"   min="0" step="1"  oninput="recalc()">
-    <div class="price-wrap">
-      <input type="number" id="p${n}" placeholder="0.00" min="0" step="0.01" oninput="recalc()">
-    </div>
-    <button class="del-btn" onclick="removeRow(${n})" title="Remove row">
-      <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-        <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </button>`;
-  document.getElementById('rowsWrap').appendChild(div);
-}
+  // Function to sync header scroll with rows
+  function syncScroll() {
+    const scrollContainer = document.getElementById('scrollableRows');
+    const headersContainer = document.getElementById('headersScroll');
+    
+    if (scrollContainer && headersContainer) {
+      scrollContainer.addEventListener('scroll', function() {
+        headersContainer.scrollLeft = this.scrollLeft;
+      });
+    }
+  }
 
-// Regular add row function (empty)
-function addRow() {
-  const n = ++rowIdx;
-  const div = document.createElement('div');
-  div.className = 'entry-row';
-  div.id = `row${n}`;
-  div.innerHTML = `
-    <input type="text"   id="n${n}" placeholder="Item name" oninput="recalc()">
-    <input type="number" id="q${n}" placeholder="0"   min="0" step="1" oninput="recalc()">
-    <div class="price-wrap">
-      <input type="number" id="p${n}" placeholder="0.00" min="0" step="0.01" oninput="recalc()">
-    </div>
-    <button class="del-btn" onclick="removeRow(${n})" title="Remove row">
-      <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-        <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </button>`;
-  document.getElementById('rowsWrap').appendChild(div);
-}
+  // Add first hardcoded row
+  function addFirstRow() {
+    const n = ++rowIdx;
+    const div = document.createElement('div');
+    div.className = 'entry-row';
+    div.id = `row${n}`;
+    div.innerHTML = `
+      <input type="text"   id="n${n}" placeholder="Item name" value="كيماوي" oninput="recalc()">
+      <input type="number" id="q${n}" placeholder="0"   min="0" step="1" oninput="recalc()">
+      <div class="price-wrap">
+        <input type="number" id="p${n}" placeholder="0.00" min="0" step="0.01" oninput="recalc()">
+      </div>
+      <button class="del-btn" onclick="removeRow(${n})" title="Remove row">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>`;
+    document.getElementById('rowsWrap').appendChild(div);
+  }
 
-// Initialize with 2 hardcoded rows + 1 empty row
-addFirstRow();
-addSecondRow();
-addRow();
+  // Add second hardcoded row
+  function addSecondRow() {
+    const n = ++rowIdx;
+    const div = document.createElement('div');
+    div.className = 'entry-row';
+    div.id = `row${n}`;
+    div.innerHTML = `
+      <input type="text"   id="n${n}" placeholder="Item name" value="حرت" oninput="recalc()">
+      <input type="number" id="q${n}" placeholder="0"   min="0" step="1" oninput="recalc()">
+      <div class="price-wrap">
+        <input type="number" id="p${n}" placeholder="0.00" min="0" step="0.01" oninput="recalc()">
+      </div>
+      <button class="del-btn" onclick="removeRow(${n})" title="Remove row">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>`;
+    document.getElementById('rowsWrap').appendChild(div);
+  }
+
+  // Regular add row function (empty)
+  function addRow() {
+    const n = ++rowIdx;
+    const div = document.createElement('div');
+    div.className = 'entry-row';
+    div.id = `row${n}`;
+    div.innerHTML = `
+      <input type="text"   id="n${n}" placeholder="Item name" oninput="recalc()">
+      <input type="number" id="q${n}" placeholder="0"   min="0" step="1" oninput="recalc()">
+      <div class="price-wrap">
+        <input type="number" id="p${n}" placeholder="0.00" min="0" step="0.01" oninput="recalc()">
+      </div>
+      <button class="del-btn" onclick="removeRow(${n})" title="Remove row">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>`;
+    document.getElementById('rowsWrap').appendChild(div);
+    
+    // Auto-scroll to show the new row
+    const scrollContainer = document.getElementById('scrollableRows');
+    if (scrollContainer) {
+      setTimeout(() => {
+        scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+      }, 50);
+    }
+  }
 
   function removeRow(n) {
     document.getElementById(`row${n}`)?.remove();
@@ -490,20 +586,19 @@ addRow();
       const p = parseFloat(document.getElementById(`p${i}`)?.value) || 0;
       if (q && p) { total += q * p; count++; }
     });
-    document.getElementById('totalAmt').textContent  = '$' + total.toFixed(2);
+    document.getElementById('totalAmt').textContent = '$' + total.toFixed(2);
     document.getElementById('itemCount').textContent = count ? `· ${count} item${count !== 1 ? 's' : ''}` : '';
   }
 
   function clearAll() {
     document.getElementById('rowsWrap').innerHTML = '';
     rowIdx = 0;
-    addRow(); addRow(); addRow();
+    addFirstRow();
+    addSecondRow();
+    addRow();
     recalc();
   }
 
-  /* ══════════════════════════════════════════
-     SUBMIT via Apps Script
-     ══════════════════════════════════════════ */
   async function handleSubmit() {
     if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
       toast('Please configure the Apps Script URL first', 'err');
@@ -515,9 +610,9 @@ addRow();
 
     const rows = [];
     document.querySelectorAll('.entry-row').forEach(row => {
-      const i     = row.id.replace('row', '');
-      const name  = document.getElementById(`n${i}`)?.value.trim() || '';
-      const qty   = parseFloat(document.getElementById(`q${i}`)?.value) || '';
+      const i = row.id.replace('row', '');
+      const name = document.getElementById(`n${i}`)?.value.trim() || '';
+      const qty = parseFloat(document.getElementById(`q${i}`)?.value) || '';
       const price = parseFloat(document.getElementById(`p${i}`)?.value) || '';
       if (name || qty || price) rows.push([name, qty, price]);
     });
@@ -525,13 +620,13 @@ addRow();
     if (!rows.length) { toast('Add at least one item.', 'err'); return; }
 
     const btn = document.getElementById('submitBtn');
-    btn.disabled  = true;
+    btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div> Submitting…';
 
     try {
       const response = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors', // Important for Apps Script web apps
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -541,16 +636,14 @@ addRow();
         })
       });
 
-      // Note: With mode: 'no-cors', we can't read the response
-      // So we assume success if no error thrown
       toast(`${rows.length} row${rows.length !== 1 ? 's' : ''} added to "${sheet}"!`, 'ok');
       clearAll();
-      
+
     } catch (e) {
       toast('Error submitting. Check console for details.', 'err');
       console.error('Submit error:', e);
     } finally {
-      btn.disabled  = false;
+      btn.disabled = false;
       btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M7 1v9M3.5 6.5L7 10l3.5-3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M1.5 12h11" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
@@ -558,9 +651,6 @@ addRow();
     }
   }
 
-  /* ══════════════════════════════════════════
-     TOAST
-     ══════════════════════════════════════════ */
   function toast(msg, type = 'info') {
     const c = document.getElementById('toasts');
     const t = document.createElement('div');
@@ -568,6 +658,28 @@ addRow();
     t.innerHTML = `<span>${{ ok: '✓', err: '✕', info: 'ℹ' }[type]}</span>${msg}`;
     c.appendChild(t);
     setTimeout(() => t.remove(), 3500);
+  }
+
+  // Initialize with 2 hardcoded rows + 1 empty row
+  addFirstRow();
+  addSecondRow();
+  addRow();
+  
+  // Set up scroll synchronization
+  syncScroll();
+  
+  // Hide scroll hint after user scrolls or after 5 seconds
+  setTimeout(() => {
+    const hint = document.getElementById('scrollHint');
+    if (hint) hint.classList.add('hidden');
+  }, 5000);
+  
+  const scrollContainer = document.getElementById('scrollableRows');
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', () => {
+      const hint = document.getElementById('scrollHint');
+      if (hint) hint.classList.add('hidden');
+    });
   }
 </script>
 </body>
